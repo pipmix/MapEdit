@@ -18,12 +18,22 @@ void AddMenus(HWND hWnd) {
 
 	AppendMenuW(hMenuEdit, MF_STRING, IDM_EDIT_COPY, L"&Copy");
 	AppendMenuW(hMenuEdit, MF_STRING, IDM_EDIT_PASTE, L"&Paste");
+	CheckMenuItem(hMenuEdit, IDM_EDIT_PASTE, MF_CHECKED);
 	AppendMenuW(hMenuEdit, MF_STRING, IDM_EDIT_CUT, L"&Cut");
+
 
 	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuFile, L"&File");
 	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuEdit, L"&Edit");
 	SetMenu(hWnd, hMenuMainBar);
 }
+
+
+
+
+
+
+
+
 
 void RightClickMenu(HWND hWnd, LPARAM lParam) {
 
