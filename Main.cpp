@@ -1,5 +1,5 @@
-#include <windows.h>
-#include <tchar.h>
+#include "Headers.h"
+#include "Tools.h"
 
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
@@ -36,8 +36,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {
+
+	case WM_COMMAND:
+
+		switch (LOWORD(wParam)) {
+			case IDM_FILE_NEW:
+			case IDM_FILE_OPEN:
+				MessageBeep(MB_ICONINFORMATION);
+				break;
+			case IDM_FILE_EXIT:
+				SendMessage(hWnd, WM_CLOSE, 0, 0);
+				break;
+		}
+		break;
 	case WM_CREATE:
-		Init(hWNd);
+		AddMenus(hWnd);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
