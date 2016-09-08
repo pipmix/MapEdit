@@ -35,6 +35,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
+
+
 	switch (message) {
 
 	case WM_COMMAND:
@@ -48,6 +50,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				SendMessage(hWnd, WM_CLOSE, 0, 0);
 				break;
 		}
+		break;
+
+
+
+	case WM_RBUTTONUP:
+		RightClickMenu(hWnd, lParam);
 		break;
 	case WM_CREATE:
 		AddMenus(hWnd);

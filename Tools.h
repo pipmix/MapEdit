@@ -1,7 +1,7 @@
 #pragma once
 #include "Headers.h"
 
-void AddMenus(HWND hwnd) {
+void AddMenus(HWND hWnd) {
 
 	HMENU hMenuMainBar;
 	HMENU hMenuFile;
@@ -22,5 +22,28 @@ void AddMenus(HWND hwnd) {
 
 	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuFile, L"&File");
 	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuEdit, L"&Edit");
-	SetMenu(hwnd, hMenuMainBar);
+	SetMenu(hWnd, hMenuMainBar);
+}
+
+void RightClickMenu(HWND hWnd, LPARAM lParam) {
+
+	HMENU menuRightClick;
+	POINT mousePoint;
+
+	mousePoint.x = LOWORD(lParam);
+	mousePoint.y = HIWORD(lParam);
+
+	menuRightClick = CreatePopupMenu();
+	ClientToScreen(hWnd, &mousePoint);
+
+	AppendMenuW(menuRightClick, MF_STRING, IDM_FILE_NEW, L"&New");
+	AppendMenuW(menuRightClick, MF_STRING, IDM_FILE_OPEN, L"&Open");
+	AppendMenuW(menuRightClick, MF_SEPARATOR, 0, NULL);
+	AppendMenuW(menuRightClick, MF_STRING, IDM_FILE_EXIT, L"&Quit");
+
+	TrackPopupMenu(menuRightClick, TPM_RIGHTBUTTON, mousePoint.x, mousePoint.y, 0, hWnd, NULL);
+	DestroyMenu(menuRightClick);
+	
+
+
 }
