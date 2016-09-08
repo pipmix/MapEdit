@@ -1,0 +1,6 @@
+*.exe
+Release/
+Debug/
+.vs/
+*.db
+MapEdit.VC.VC.opendb
