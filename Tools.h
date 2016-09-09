@@ -132,3 +132,28 @@ void SetRadioMenu(HWND hWnd, UINT left, UINT right, UINT setValue) {
 
 
 }
+
+WCHAR* IntToLPCWSTR(int i) {
+	WCHAR buffer[256];
+	wsprintfW(buffer, L"%d", i);
+	return buffer;
+}
+
+
+void MiscWindowsFunctions() {
+	LPCWSTR dir = L"blank";
+	DWORD setDir = SetCurrentDirectoryW(dir);
+
+	WCHAR buffer[BUFSIZE];
+	DWORD getDir =  GetCurrentDirectoryW(BUFSIZE, buffer);
+	// if dword == 0 then error
+
+	WCHAR cName[MAX_COMPUTERNAME_LENGTH + 1];
+	DWORD size = sizeof(cName) / sizeof(cName[0]);
+	int getCompName = GetComputerNameW(cName, &size);
+
+	MEMORYSTATUSEX mem = { 0 };
+	mem.dwLength = sizeof(mem);
+	int r = GlobalMemoryStatusEx(&mem);
+	//mem.
+}

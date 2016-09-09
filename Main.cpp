@@ -1,7 +1,7 @@
 #include "Headers.h"
 #include "Tools.h"
 
-ATOM MyRegisterClass(HINSTANCE hInstance);
+ATOM RegisterWindowClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 
 
@@ -15,12 +15,14 @@ HWND hWnd;
 HWND hTest;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void CommandMsg(HWND hWnd, WPARAM wParam);
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
-	MyRegisterClass(hInstance);
-	if (!InitInstance(hInstance, nCmdShow)) return FALSE;
+
+	RegisterWindowClass(hInstance);
+	InitInstance(hInstance, nCmdShow);
 	
 	ShowWindow(hWnd,nCmdShow);
 	UpdateWindow(hWnd);
@@ -46,77 +48,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 	switch (message) {
 
-	case WM_COMMAND:
+		case WM_COMMAND:
+			CommandMsg(hWnd, wParam);
+			break;
 
-		switch (LOWORD(wParam)) {
-			case IDM_FILE_NEW:
-				ShowWindow(hTest, SW_HIDE);
-				break;
-			case IDM_FILE_OPEN:
-				ShowWindow(hTest, SW_SHOW);
-				MessageBeep(MB_ICONINFORMATION);
-				break;
-			case IDM_FILE_EXIT:
-				SendMessage(hWnd, WM_CLOSE, 0, 0);
-				break;
-			case IDM_EDIT_COPY:
-				MessageBoxW(NULL, L"Copied", L"Copy", MB_OK);
+		case WM_SIZE:
+			SendMessage(hTest, WM_SIZE, wParam, lParam);
+			break;
 
+		case WM_RBUTTONUP:
+			RightClickMenu(hWnd, lParam);
+			break;
+		case WM_CREATE:
+			AddMenus(hWnd);
+			AddTextBox(hWnd);
 
-				break;
-			case IDM_EDIT_ONTOP:
+			hTest = CreateWindowExW(0, STATUSCLASSNAMEW, NULL,
+				WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hWnd,
+				(HMENU)1, GetModuleHandle(NULL), NULL);
 
-				if (FlipCheckMenu(hWnd, IDM_EDIT_ONTOP))
-					SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-				else
-					SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-					// current pos, current size
-				break;
-			case IDM_EDIT_PASTE:
-				FlipCheckMenu(hWnd, IDM_EDIT_PASTE);
-
-				break;
-			case IDM_WINDOW_WIREFRAME:
-				SetRadioMenu(hWnd, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_WIREFRAME);
-				break;
-			case IDM_WINDOW_SHADED:
-				SetRadioMenu(hWnd, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_SHADED);
-				break;
-			case IDM_WINDOW_TEXTURED:
-				SetRadioMenu(hWnd, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_TEXTURED);
-				break;
-		}
-		break;
-
-	case WM_SIZE:
-		SendMessage(hTest, WM_SIZE, wParam, lParam);
-		break;
-
-	case WM_RBUTTONUP:
-		RightClickMenu(hWnd, lParam);
-		break;
-	case WM_CREATE:
-		AddMenus(hWnd);
-		AddTextBox(hWnd);
-
-		hTest = CreateWindowExW(0, STATUSCLASSNAMEW, NULL,
-			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hWnd,
-			(HMENU)1, GetModuleHandle(NULL), NULL);
-
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-		break;
+			break;
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+			break;
 	}
 	return 0;
 }
 
 
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
+ATOM RegisterWindowClass(HINSTANCE hInstance){
+
 	WNDCLASSEX wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -145,7 +109,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
 	if (!hWnd) return FALSE;
 
-	
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -154,3 +117,51 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 }
 
 
+void CommandMsg(HWND hWnd, WPARAM wParam) {
+
+
+	switch (LOWORD(wParam)) {
+		case IDM_FILE_NEW:
+			ShowWindow(hTest, SW_HIDE);
+			break;
+		case IDM_FILE_OPEN:
+			ShowWindow(hTest, SW_SHOW);
+			MessageBeep(MB_ICONINFORMATION);
+			break;
+		case IDM_FILE_EXIT:
+			SendMessage(hWnd, WM_CLOSE, 0, 0);
+			break;
+		case IDM_EDIT_COPY: {
+			int x = GetSystemMetrics(SM_CXSCREEN);
+			int y = GetSystemMetrics(SM_CYSCREEN);
+
+
+
+			MessageBoxW(NULL, IntToLPCWSTR(x), IntToLPCWSTR(y), MB_OK);
+		}
+
+							break;
+		case IDM_EDIT_ONTOP:
+
+			if (FlipCheckMenu(hWnd, IDM_EDIT_ONTOP))
+				SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			else
+				SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			// current pos, current size
+			break;
+		case IDM_EDIT_PASTE:
+			FlipCheckMenu(hWnd, IDM_EDIT_PASTE);
+
+			break;
+		case IDM_WINDOW_WIREFRAME:
+			SetRadioMenu(hWnd, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_WIREFRAME);
+			break;
+		case IDM_WINDOW_SHADED:
+			SetRadioMenu(hWnd, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_SHADED);
+			break;
+		case IDM_WINDOW_TEXTURED:
+			SetRadioMenu(hWnd, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_TEXTURED);
+			break;
+	}
+
+}

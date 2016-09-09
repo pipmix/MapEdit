@@ -1,5 +1,6 @@
 #pragma once
 
+#define BUFSIZE MAX_PATH
 
 #define IDM_FILE_NEW	1
 #define IDM_FILE_OPEN	2
