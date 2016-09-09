@@ -4,5 +4,6 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <tchar.h>
+#include <Strsafe.h>
 
 #include "Defines.h"

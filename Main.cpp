@@ -2,7 +2,9 @@
 #include "Tools.h"
 
 ATOM RegisterWindowClass(HINSTANCE hInstance);
-BOOL InitInstance(HINSTANCE, int);
+BOOL CreateInstance(HINSTANCE, int);
+
+bool windowHasFocus = false;
 
 
 static TCHAR szWindowClass[] = _T("MapEditWndClass");
@@ -11,21 +13,27 @@ static TCHAR szTitle[] = _T("MapEdit");
 int gWidth = 768;
 int gHeight = 768;
 HINSTANCE hInst;
-HWND hWnd;
+
 HWND hTest;
+HWND hText;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK ChildProc(HWND, UINT, WPARAM, LPARAM);
 void CommandMsg(HWND hWnd, WPARAM wParam);
+
+void RegisterChild1();
+void RegisterChild2();
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
 
 	RegisterWindowClass(hInstance);
-	InitInstance(hInstance, nCmdShow);
+	CreateInstance(hInstance, nCmdShow);
+
 	
-	ShowWindow(hWnd,nCmdShow);
-	UpdateWindow(hWnd);
+
+	
 
 	INITCOMMONCONTROLSEX icc = { sizeof(INITCOMMONCONTROLSEX),
 		ICC_BAR_CLASSES | ICC_DATE_CLASSES | ICC_LISTVIEW_CLASSES | ICC_STANDARD_CLASSES |
@@ -45,11 +53,85 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 	UINT check;
 	HMENU hTmp = GetMenu(hWnd);
+	const int BUF_LEN = 10;
+	wchar_t buf[BUF_LEN];
+	RECT rect;
+
 
 	switch (message) {
+		case WM_CREATE:
+			RegisterHotKey(hWnd, IDHK_CENTER, MOD_CONTROL, 0x43);
+			CenterWindow(hWnd);
+			AddMenus(hWnd);
+			AddTextBox(hWnd);
+
+			hTest = CreateWindowExW(0, STATUSCLASSNAMEW, NULL,
+				WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hWnd,
+				(HMENU)1, GetModuleHandle(NULL), NULL);
+
+			RegisterChild1();
+			CreateWindowW(L"RedPanelClass", NULL,
+				WS_CHILD | WS_VISIBLE,
+				20, 20, 80, 80,
+				hWnd, (HMENU)1, NULL, NULL);
+
+
+			RegisterChild2();
+			CreateWindowEx(0,
+				"EChild2Class", NULL,
+				WS_CHILD | WS_VISIBLE,
+				100, 100, 280, 280,
+				hWnd, (HMENU)2, GetModuleHandle(NULL), NULL);
+
+
+			CreateWindowW(L"static", L"x: Test ",
+				WS_CHILD | WS_VISIBLE,
+				10, 60, 100, 20,
+				hWnd, 0, NULL, NULL);
+
+			hText = CreateWindowW(L"static", L"0",
+				WS_CHILD | WS_VISIBLE,
+				60, 60, 100, 20,
+				hWnd, 0, NULL, NULL);
+
+
+			break;
+		case WM_MOVE:
+			GetWindowRect(hWnd, &rect);
+			StringCbPrintfW(buf, BUF_LEN, L"%ld", rect.left);
+			SetWindowTextW(hText, buf);
+
+			break;
+
+		case WM_KEYDOWN:
+			if (wParam == VK_ESCAPE) {
+				int tmp = MessageBoxW(hWnd, L"Quit?", L"Message", MB_OKCANCEL);
+				if (tmp == IDOK)  SendMessage(hWnd, WM_CLOSE, 0, 0);
+				
+			}
+			break;
+
+		case WM_KILLFOCUS:
+			windowHasFocus = 0;
+			break;
+		case WM_SETFOCUS:
+			windowHasFocus = 1;
+			break;
 
 		case WM_COMMAND:
 			CommandMsg(hWnd, wParam);
+			break;
+
+		case WM_HOTKEY: {
+			//HWND temp = GetActiveWindow();
+			HWND temp = GetForegroundWindow();
+			if (temp != hWnd)break;
+
+			
+		}
+			if ((wParam) == IDHK_CENTER) {
+				CenterWindow(hWnd);
+			}
 			break;
 
 		case WM_SIZE:
@@ -59,16 +141,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		case WM_RBUTTONUP:
 			RightClickMenu(hWnd, lParam);
 			break;
-		case WM_CREATE:
-			AddMenus(hWnd);
-			AddTextBox(hWnd);
 
-			hTest = CreateWindowExW(0, STATUSCLASSNAMEW, NULL,
-				WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hWnd,
-				(HMENU)1, GetModuleHandle(NULL), NULL);
-
-			break;
 		case WM_DESTROY:
+			UnregisterHotKey(hWnd, IDHK_CENTER);
 			PostQuitMessage(0);
 			break;
 		default:
@@ -81,33 +156,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 ATOM RegisterWindowClass(HINSTANCE hInstance){
 
-	WNDCLASSEX wcex;
+	WNDCLASSEX wcex = { 0 };
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	//wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
-	wcex.hIcon = (HICON)LoadImage(NULL, "largeicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_GRAYTEXT);
-	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = (HICON)LoadImage(NULL, "smallicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
+	wcex.cbSize			= sizeof(WNDCLASSEX);
+	wcex.style			= CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc	= WndProc;
+	wcex.cbClsExtra		= 0;
+	wcex.cbWndExtra		= 0;
+	wcex.hInstance		= hInstance;
+	wcex.hIcon			= (HICON)LoadImage(NULL, "largeicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
+	wcex.hCursor		= LoadCursor(nullptr, IDC_ARROW);
+	wcex.hbrBackground	= GetSysColorBrush(COLOR_GRAYTEXT);//  (HBRUSH)(COLOR_GRAYTEXT);
+	wcex.lpszMenuName	= NULL;
+	wcex.lpszClassName	= szWindowClass;
+	wcex.hIconSm		= (HICON)LoadImage(NULL, "smallicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
 
 	return RegisterClassEx(&wcex);
 }
 
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
+BOOL CreateInstance(HINSTANCE hInstance, int nCmdShow) {
 
 	hInst = hInstance;
-	HWND hWnd = CreateWindow(szWindowClass, szTitle,  WS_OVERLAPPEDWINDOW | SS_OWNERDRAW | WS_EX_TOPMOST,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	//HWND hWnd = CreateWindow(szWindowClass, szTitle,  WS_OVERLAPPEDWINDOW | SS_OWNERDRAW | WS_EX_TOPMOST,
+	//	CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-	if (!hWnd) return FALSE;
+	HWND hWnd = CreateWindowEx(
+		WS_EX_CLIENTEDGE,
+		szWindowClass,
+		szTitle,
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, gWidth, gWidth,
+		NULL, NULL, hInstance, NULL);
+
+
 
 
 	ShowWindow(hWnd, nCmdShow);
@@ -140,7 +221,19 @@ void CommandMsg(HWND hWnd, WPARAM wParam) {
 			MessageBoxW(NULL, IntToLPCWSTR(x), IntToLPCWSTR(y), MB_OK);
 		}
 
-							break;
+			break;
+
+		case IDM_SETTINGS_ONE:{
+			CenterWindow(hWnd);
+
+			RECT rc = { 0 };
+			GetWindowRect(hWnd, &rc);
+			int win_w = rc.right - rc.left;
+			int win_h = rc.bottom - rc.top;
+
+			MessageBoxW(NULL, IntToLPCWSTR(win_h), IntToLPCWSTR(win_w), MB_OK);
+		}
+			break;
 		case IDM_EDIT_ONTOP:
 
 			if (FlipCheckMenu(hWnd, IDM_EDIT_ONTOP))
@@ -165,3 +258,48 @@ void CommandMsg(HWND hWnd, WPARAM wParam) {
 	}
 
 }
+
+
+LRESULT CALLBACK ChildProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+
+
+	switch (message) {
+	case WM_LBUTTONUP:
+		MessageBeep(MB_OK);
+		CenterWindow(hWnd);
+		break;
+	}
+	return DefWindowProcW(hWnd, message, wParam, lParam);
+
+}
+
+void RegisterChild1() {
+
+	HBRUSH hbrush = CreateSolidBrush(RGB(0, 0, 255));
+	WNDCLASSW rwc = { 0 };
+	rwc.lpszClassName = L"RedPanelClass";
+	rwc.hbrBackground = hbrush;
+	rwc.lpfnWndProc = ChildProc;
+	rwc.hCursor = LoadCursor(0, IDC_ARROW);
+	RegisterClassW(&rwc);
+
+
+}
+
+
+void RegisterChild2() {
+
+	WNDCLASSEX wcex = { 0 };
+	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.lpszClassName = "EChild2Class";
+	wcex.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(55, 55, 55));;
+	wcex.lpfnWndProc = ChildProc;
+	wcex.hCursor = LoadCursor(0, IDC_ARROW);
+	RegisterClassEx(&wcex);
+
+	
+}
+
+
+
+

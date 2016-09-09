@@ -157,3 +157,36 @@ void MiscWindowsFunctions() {
 	int r = GlobalMemoryStatusEx(&mem);
 	//mem.
 }
+
+void CenterWindow(HWND hWnd) {
+
+	RECT rc = { 0 };
+	GetWindowRect(hWnd, &rc);
+	int windowWidth = rc.right - rc.left;
+	int windowHeight = rc.bottom - rc.top;
+	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+	SetWindowPos(hWnd, HWND_TOP, (screenWidth - windowWidth) / 2,
+		(screenHeight - windowHeight) / 2, 0, 0, SWP_NOSIZE);
+}
+
+void CreateText(HWND hWnd) {
+
+	CreateWindowW(L"static", L"x: ",
+		WS_CHILD | WS_VISIBLE,
+		10, 10, 25, 25,
+		hWnd, (HMENU)1, NULL, NULL);
+	CreateWindowW(L"static", L"150",
+		WS_CHILD | WS_VISIBLE,
+		40, 10, 55, 25,
+		hWnd, (HMENU)2, NULL, NULL);
+
+
+}
+
+void CreateSidePane(HWND hWnd) {
+
+
+
+
+}
