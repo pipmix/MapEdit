@@ -10,3 +10,5 @@
 #define IDM_EDIT_CUT	6
 
 #define IDM_EDIT_STATUSCHECK	7
+
+#define IDM_EDIT_ONTOP 8

@@ -13,6 +13,7 @@ int gHeight = 768;
 HINSTANCE hInst;
 HWND hWnd;
 HWND hTest;
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 
@@ -41,6 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	UINT check;
+	HMENU hTmp = GetMenu(hWnd);
 
 	switch (message) {
 
@@ -57,12 +59,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			case IDM_FILE_EXIT:
 				SendMessage(hWnd, WM_CLOSE, 0, 0);
 				break;
-			case IDM_EDIT_STATUSCHECK:
+			case IDM_EDIT_COPY:
+
+
+				break;
+			case IDM_EDIT_ONTOP:
+
+				hTmp = GetMenu(hWnd);
+				check = GetMenuState(hTmp, IDM_EDIT_ONTOP, MF_BYCOMMAND);
+				if (check == MF_CHECKED) {
+					CheckMenuItem(hTmp, IDM_EDIT_ONTOP, MF_UNCHECKED);
+
+				}
+				else {
+					CheckMenuItem(hTmp, IDM_EDIT_ONTOP, MF_CHECKED);
+					SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+				}
 
 
 				break;
 			case IDM_EDIT_PASTE:
-				HMENU hTmp = GetMenu(hWnd);
+				hTmp = GetMenu(hWnd);
 				check = GetMenuState(hTmp, IDM_EDIT_PASTE, MF_BYCOMMAND);
 				if (check == MF_CHECKED) CheckMenuItem(hTmp, IDM_EDIT_PASTE, MF_UNCHECKED);
 				else CheckMenuItem(hTmp, IDM_EDIT_PASTE, MF_CHECKED);
@@ -79,6 +96,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		break;
 	case WM_CREATE:
 		AddMenus(hWnd);
+		AddTextBox(hWnd);
 
 		hTest = CreateWindowExW(0, STATUSCLASSNAMEW, NULL,
 			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hWnd,
@@ -120,11 +138,12 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
 	hInst = hInstance;
-	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW | SS_OWNERDRAW | WS_EX_TOPMOST,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd) return FALSE;
 
+	
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
