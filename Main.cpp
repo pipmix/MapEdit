@@ -60,29 +60,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				SendMessage(hWnd, WM_CLOSE, 0, 0);
 				break;
 			case IDM_EDIT_COPY:
+				MessageBoxW(NULL, L"Copied", L"Copy", MB_OK);
 
 
 				break;
 			case IDM_EDIT_ONTOP:
 
-				hTmp = GetMenu(hWnd);
-				check = GetMenuState(hTmp, IDM_EDIT_ONTOP, MF_BYCOMMAND);
-				if (check == MF_CHECKED) {
-					CheckMenuItem(hTmp, IDM_EDIT_ONTOP, MF_UNCHECKED);
-
-				}
-				else {
-					CheckMenuItem(hTmp, IDM_EDIT_ONTOP, MF_CHECKED);
+				if (FlipCheckMenu(hWnd, IDM_EDIT_ONTOP))
 					SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-				}
-
-
+				else
+					SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+					// current pos, current size
 				break;
 			case IDM_EDIT_PASTE:
-				hTmp = GetMenu(hWnd);
-				check = GetMenuState(hTmp, IDM_EDIT_PASTE, MF_BYCOMMAND);
-				if (check == MF_CHECKED) CheckMenuItem(hTmp, IDM_EDIT_PASTE, MF_UNCHECKED);
-				else CheckMenuItem(hTmp, IDM_EDIT_PASTE, MF_CHECKED);
+				FlipCheckMenu(hWnd, IDM_EDIT_PASTE);
+
+				break;
+			case IDM_WINDOW_WIREFRAME:
+				SetRadioMenu(hWnd, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_WIREFRAME);
+				break;
+			case IDM_WINDOW_SHADED:
+				SetRadioMenu(hWnd, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_SHADED);
+				break;
+			case IDM_WINDOW_TEXTURED:
+				SetRadioMenu(hWnd, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_TEXTURED);
 				break;
 		}
 		break;
@@ -125,12 +126,13 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	//wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	wcex.hIcon = (HICON)LoadImage(NULL, "largeicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_GRAYTEXT);
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	wcex.hIconSm = (HICON)LoadImage(NULL, "smallicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
 
 	return RegisterClassEx(&wcex);
 }
@@ -138,7 +140,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
 	hInst = hInstance;
-	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW | SS_OWNERDRAW | WS_EX_TOPMOST,
+	HWND hWnd = CreateWindow(szWindowClass, szTitle,  WS_OVERLAPPEDWINDOW | SS_OWNERDRAW | WS_EX_TOPMOST,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd) return FALSE;
@@ -150,3 +152,5 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
 	return TRUE;
 }
+
+
