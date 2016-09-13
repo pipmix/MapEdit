@@ -12,7 +12,7 @@ bool windowHasFocus = false;
 
 
 static TCHAR szWindowClass[] = _T("MapEditWndClass");
-static TCHAR szTitle[] = _T("MapEdit");
+static TCHAR szTitle[] = _T("Vision");
 
 int gWidth = 768;
 int gHeight = 768;
@@ -29,6 +29,7 @@ void CommandMsg(HWND hWnd, WPARAM wParam);
 
 void RegisterChild1();
 void RegisterChild2();
+void GetDir();
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
@@ -339,4 +340,62 @@ void RegisterChild2() {
 
 
 
+
+void GetDir() {
+
+
+	CHAR fileName[FILENAME_MAX];
+	WIN32_FIND_DATA findData = { 0 };
+	HANDLE hFind = ::FindFirstFile("c:/files/aab/Levels/", &findData);
+	//HANDLE handle = FindFirstFile(fileName, &findData);
+
+	while (hFind != INVALID_HANDLE_VALUE){
+
+		findData.cFileName;
+
+		if (FindNextFile(hFind, &findData) == FALSE)
+			break;
+	}
+
+	FindClose(hFind);
+
+
+	/*
+	wchar_t sp[128];
+	wsprintf(sp, L"%s/*.*", folder.c_str());
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = ::FindFirstFile(sp, &fd);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			// read all (real) files in current folder
+			// , delete '!' read other 2 default folder . and ..
+			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				names.push_back(fd.cFileName);
+			}
+			else //Put folders into vector
+			{
+				folders.push_back(fd.cFileName);
+			}
+
+		} while (::FindNextFile(hFind, &fd));
+		::FindClose(hFind);
+	}
+
+	if (!slim) {
+
+		for (int i = 0; i < names.size(); i++) {
+			wcout << names[i] << endl;
+
+		}
+		for (int i = 0; i < folders.size(); i++) {
+			//wcout << folders[i] << endl;
+
+		}
+
+	
+
+	}
+	*/
+
+}
 

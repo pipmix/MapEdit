@@ -277,6 +277,8 @@ HWND CreateTablePanel(HWND hWnd) {
 		, 0, 0, 0, 0,
 		hWnd, 0, 0, NULL);
 
+	SendMessage(hTable, LVM_SETEXTENDEDLISTVIEWSTYLE,0, LVS_EX_FULLROWSELECT); 
+
 
 	int col = 0;
 	LVCOLUMN lvc;
@@ -286,7 +288,7 @@ HWND CreateTablePanel(HWND hWnd) {
 	lvc.cchTextMax = 10;
 	//lvc.iSubItem = 8;
 
-
+	
 	lvc.pszText = "Name";
 	ListView_InsertColumn(hTable, col, &lvc);
 	ListView_SetColumnWidth(hTable, col, 150);
@@ -294,15 +296,107 @@ HWND CreateTablePanel(HWND hWnd) {
 	lvc.pszText = "Type";
 	col++;
 	ListView_InsertColumn(hTable, col, &lvc);
-	ListView_SetColumnWidth(hTable, col, 50);
+	ListView_SetColumnWidth(hTable, col, 100);
 
 	lvc.pszText = "Size";
 	col++;
 	ListView_InsertColumn(hTable, col, &lvc);
-	ListView_SetColumnWidth(hTable, col, 50);
+	ListView_SetColumnWidth(hTable, col, 100);
+
+
+	lvc.pszText = "Modified";
+	col++;
+	ListView_InsertColumn(hTable, col, &lvc);
+	ListView_SetColumnWidth(hTable, col, 100);
+
+
+	CHAR fileName[FILENAME_MAX];
+	WIN32_FIND_DATA findData = { 0 };
+	HANDLE hFind = ::FindFirstFile("c:/files/aab/*", &findData);
+	int row = 0;
+	col = 0;
+	LVITEM lvi;
+	lvi.mask = LVIF_TEXT;
+
+	while (hFind != INVALID_HANDLE_VALUE) {
+
+		lvi.iItem = row;
+		lvi.iSubItem = 0;
+		lvi.pszText = findData.cFileName;
+		SendMessage(hTable, LVM_INSERTITEM, 0, (LPARAM)&lvi);
+
+		col++;
+		lvi.iSubItem = col;
+
+		if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)lvi.pszText = "Folder";
+		else lvi.pszText = "File";
+		SendMessage(hTable, LVM_SETITEM, 0, (LPARAM)&lvi);
+
+		col++;
+		lvi.iSubItem = col;
+		
+
+		if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+			char szTest[10];
+			sprintf_s(szTest, "%d", findData.nFileSizeLow);
+			lvi.pszText = szTest;
+
+			SendMessage(hTable, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 
 
+
+
+		}
+
+		col++;
+		lvi.iSubItem = col;
+
+		char szTest[100];
+		sprintf_s(szTest, "%d", findData.ftLastWriteTime.dwLowDateTime);
+		lvi.pszText = szTest;
+
+
+		SendMessage(hTable, LVM_SETITEM, 0, (LPARAM)&lvi);
+
+
+
+		col = 0;
+		if (FindNextFile(hFind, &findData) == FALSE) break;
+	}
+
+	FindClose(hFind);
+
+
+	//lvi.iItem = 1;
+	//lvi.iSubItem = 1; 
+	//lvi.pszText = "testx2";
+	//SendMessage(hTable, LVM_SETITEM, 0, (LPARAM)&lvi);
+
+	
+	/*
+	CHAR fileName[FILENAME_MAX];
+	WIN32_FIND_DATA findData = { 0 };
+	HANDLE hFind = ::FindFirstFile("c:/files/aab/*", &findData);
+	//HANDLE handle = FindFirstFile(fileName, &findData);
+	
+	while (hFind != INVALID_HANDLE_VALUE) {
+
+
+		if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+			lvc.pszText = findData.cFileName;
+
+			ListView_InsertColumn(hTable, col, &lvc);
+			ListView_SetColumnWidth(hTable, col, 100);
+			col++;
+		}
+
+		if (FindNextFile(hFind, &findData) == FALSE) break;
+	}
+
+	FindClose(hFind);
+
+	*/
 
 
 
