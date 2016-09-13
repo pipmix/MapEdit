@@ -7,3 +7,6 @@
 #include <Strsafe.h>
 
 #include "Defines.h"
+
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "Comctl32.lib")

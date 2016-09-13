@@ -16,6 +16,7 @@ HINSTANCE hInst;
 
 HWND hTest;
 HWND hText;
+HWND hSidePanel;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK ChildProc(HWND, UINT, WPARAM, LPARAM);
@@ -55,8 +56,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	HMENU hTmp = GetMenu(hWnd);
 	const int BUF_LEN = 10;
 	wchar_t buf[BUF_LEN];
-	RECT rect;
 
+	RECT rect;
+	GetWindowRect(hWnd, &rect);
+	
 
 	switch (message) {
 		case WM_CREATE:
@@ -68,7 +71,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			hTest = CreateWindowExW(0, STATUSCLASSNAMEW, NULL,
 				WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hWnd,
 				(HMENU)1, GetModuleHandle(NULL), NULL);
-
+			/*
 			RegisterChild1();
 			CreateWindowW(L"RedPanelClass", NULL,
 				WS_CHILD | WS_VISIBLE,
@@ -93,6 +96,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				WS_CHILD | WS_VISIBLE,
 				60, 60, 100, 20,
 				hWnd, 0, NULL, NULL);
+				*/
+
+
+			hSidePanel = CreateSidePanel(hWnd);
+
 
 
 			break;
@@ -136,6 +144,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 		case WM_SIZE:
 			SendMessage(hTest, WM_SIZE, wParam, lParam);
+			SendMessage(hSidePanel, WM_SIZE, wParam, lParam);
+
+
+
 			break;
 
 		case WM_RBUTTONUP:

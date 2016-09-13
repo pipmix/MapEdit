@@ -184,9 +184,69 @@ void CreateText(HWND hWnd) {
 
 }
 
-void CreateSidePane(HWND hWnd) {
+HTREEITEM ListViewAddItem(HWND hWnd, HTREEITEM hItem, LPSTR lpstr) {
+
+	TVINSERTSTRUCT insert;
+	insert = { 0 };
+
+	insert.hParent = hItem;
+	insert.hInsertAfter = TVI_LAST;
+	insert.item.mask = TVIF_TEXT;
+	insert.item.pszText = lpstr;
+	insert.item.cchTextMax = 10;
+
+	//HTREEITEM test = TVM_INSERTITEM(0, &insert);
+	return TreeView_InsertItem(hWnd, &insert);
+
+}
+
+
+HWND CreateSidePanel(HWND hWnd) {
+
+	RECT rect;
+	GetWindowRect(hWnd, &rect);
+	HWND hSidePanel = 
+	CreateWindowEx(0, WC_TREEVIEW, NULL,
+		WS_CHILD | WS_VISIBLE | WS_TABSTOP |
+		//TVS_HASLINES | TVS_LINESATROOT |
+		TVS_HASBUTTONS  | WS_BORDER | TVS_FULLROWSELECT
+		, 0, 0, 120, rect.right - rect.left,
+		hWnd, 0, NULL, NULL);
+	//TVS_CHECKBOXES   TVS_FULLROWSELECT   TVS_EDITLABELS   TVS_INFOTIP  TVS_SHOWSELALWAYS
 
 
 
+	HTREEITEM hRoot;
+
+
+	TV_INSERTSTRUCT tvins;
+
+	tvins = { 0 };
+
+	tvins.hInsertAfter = TVI_ROOT;
+	tvins.item.mask = TVIF_TEXT;
+	tvins.item.pszText = "Root";
+	tvins.item.cchTextMax = 10;
+
+	hRoot = TreeView_InsertItem(hSidePanel, &tvins);
+
+	//tvins.hInsertAfter = TVI_LAST;
+	//tvins.item.pszText = "Child";
+	//hChild = TreeView_InsertItem(hSidePanel, &tvins);
+
+
+	ListViewAddItem(hSidePanel, hRoot, "test");
+	ListViewAddItem(hSidePanel, hRoot, "cat");
+	ListViewAddItem(hSidePanel,  ListViewAddItem(hSidePanel, hRoot, "murder"), "more");
+
+	tvins.hInsertAfter = TVI_ROOT;
+	tvins.item.mask = TVIF_TEXT;
+	tvins.item.pszText = "Root2";
+	tvins.item.cchTextMax = 10;
+
+	hRoot = TreeView_InsertItem(hSidePanel, &tvins);
+
+
+	return hSidePanel;
 
 }
