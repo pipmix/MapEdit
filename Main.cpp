@@ -1,3 +1,7 @@
+// Vision Explorer
+// v0.01
+// pipmix.com
+
 #include "Headers.h"
 #include "Tools.h"
 
@@ -17,6 +21,7 @@ HINSTANCE hInst;
 HWND hTest;
 HWND hText;
 HWND hSidePanel;
+HWND hTablePanel;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK ChildProc(HWND, UINT, WPARAM, LPARAM);
@@ -57,9 +62,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	const int BUF_LEN = 10;
 	wchar_t buf[BUF_LEN];
 
-	RECT rect;
-	GetWindowRect(hWnd, &rect);
-	
+	RECT clientRect;
+	GetWindowRect(hWnd, &clientRect);
+	RECT windowRect;
+	GetWindowRect(hWnd, &windowRect);
 
 	switch (message) {
 		case WM_CREATE:
@@ -100,13 +106,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 
 			hSidePanel = CreateSidePanel(hWnd);
+			hTablePanel = CreateTablePanel(hWnd);
 
 
+
+
+
+			ShowWindow(hTest, SW_HIDE);
 
 			break;
+
+
+
+			return 0;
 		case WM_MOVE:
-			GetWindowRect(hWnd, &rect);
-			StringCbPrintfW(buf, BUF_LEN, L"%ld", rect.left);
+
+			StringCbPrintfW(buf, BUF_LEN, L"%ld", clientRect.left);
 			SetWindowTextW(hText, buf);
 
 			break;
@@ -144,14 +159,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 		case WM_SIZE:
 			SendMessage(hTest, WM_SIZE, wParam, lParam);
-			SendMessage(hSidePanel, WM_SIZE, wParam, lParam);
 
+
+			MoveWindow(hSidePanel, 0, 0, 120, clientRect.bottom, 1);
+			MoveWindow(hTablePanel, 120, 0, clientRect.right, clientRect.bottom, 1);
 
 
 			break;
 
 		case WM_RBUTTONUP:
 			RightClickMenu(hWnd, lParam);
+			break;
+
+
+		case WM_LBUTTONUP:
+			ReleaseCapture();
+			break;
+		case WM_LBUTTONDOWN:
+			SetCapture(hWnd);
 			break;
 
 		case WM_DESTROY:

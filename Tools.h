@@ -15,6 +15,13 @@ void AddMenus(HWND hWnd) {
 	hMenuWindow = CreateMenu();
 	hMenuSettings = CreatePopupMenu();
 
+
+
+
+	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuFile, L"&File");
+	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuEdit, L"&Edit");
+	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuWindow, L"&Window");
+
 	AppendMenuW(hMenuFile, MF_STRING, IDM_FILE_NEW, L"&New");
 	AppendMenuW(hMenuFile, MF_STRING, IDM_FILE_OPEN, L"&Open");
 	AppendMenuW(hMenuFile, MF_SEPARATOR, 0, NULL);
@@ -51,14 +58,12 @@ void AddMenus(HWND hWnd) {
 	AppendMenuW(hMenuWindow, MF_STRING, IDM_WINDOW_TEXTURED, L"&Textured");
 	CheckMenuRadioItem(hMenuWindow, IDM_WINDOW_WIREFRAME, IDM_WINDOW_TEXTURED, IDM_WINDOW_WIREFRAME, MF_BYCOMMAND);
 
-	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuFile, L"&File");
-	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuEdit, L"&Edit");
-	AppendMenuW(hMenuMainBar, MF_POPUP, (UINT_PTR)hMenuWindow, L"&Window");
-
-	SetMenu(hWnd, hMenuMainBar);
 
 
 	
+
+
+	SetMenu(hWnd, hMenuMainBar);
 
 }
 
@@ -250,3 +255,79 @@ HWND CreateSidePanel(HWND hWnd) {
 	return hSidePanel;
 
 }
+
+int CreateColumn(HWND hWnd, int iCol, char * text, int iBreite)
+{
+	LVCOLUMN lvc;
+
+	lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+	lvc.fmt = LVCFMT_LEFT;
+	lvc.cx = iBreite;
+	lvc.pszText = text;
+	lvc.iSubItem = iCol;
+	return ListView_InsertColumn(hWnd, iCol, &lvc);
+}
+
+
+HWND CreateTablePanel(HWND hWnd) {
+
+	HWND hTable;
+	hTable = CreateWindowEx(0, WC_LISTVIEW, NULL,
+		WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_REPORT | WS_BORDER
+		, 0, 0, 0, 0,
+		hWnd, 0, 0, NULL);
+
+
+	int col = 0;
+	LVCOLUMN lvc;
+	lvc = { 0 };
+	lvc.mask = LVCF_TEXT;
+	lvc.cx = 20;
+	lvc.cchTextMax = 10;
+	//lvc.iSubItem = 8;
+
+
+	lvc.pszText = "Name";
+	ListView_InsertColumn(hTable, col, &lvc);
+	ListView_SetColumnWidth(hTable, col, 150);
+
+	lvc.pszText = "Type";
+	col++;
+	ListView_InsertColumn(hTable, col, &lvc);
+	ListView_SetColumnWidth(hTable, col, 50);
+
+	lvc.pszText = "Size";
+	col++;
+	ListView_InsertColumn(hTable, col, &lvc);
+	ListView_SetColumnWidth(hTable, col, 50);
+
+
+
+
+
+
+	return hTable;
+
+
+
+}
+
+/*
+			hTablePanel = CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, NULL,
+				WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_REPORT
+				, 10, 100, 500, 500,
+				hWnd, 0, hInst, NULL);
+			LV_COLUMN lvc;
+			lvc = { 0 };
+			lvc.mask = LVCF_TEXT;
+			//lvc.fmt = LVCF_TEXT;
+			lvc.cx = 20;
+			lvc.cchTextMax = 11;
+			lvc.iSubItem = 6;
+			for (int i = 0; i<6; i++) {
+				lvc.iSubItem = i;
+				lvc.pszText = "C";
+				ListView_InsertColumn(hTablePanel, i, &lvc);
+				ListView_SetColumnWidth(hTablePanel, i, 50);
+				//ListView_InsertItem(hWndLV, &lvi);
+				}*/
