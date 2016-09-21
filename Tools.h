@@ -406,22 +406,22 @@ HWND CreateTablePanel(HWND hWnd) {
 
 }
 
-/*
-			hTablePanel = CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, NULL,
-				WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_REPORT
-				, 10, 100, 500, 500,
-				hWnd, 0, hInst, NULL);
-			LV_COLUMN lvc;
-			lvc = { 0 };
-			lvc.mask = LVCF_TEXT;
-			//lvc.fmt = LVCF_TEXT;
-			lvc.cx = 20;
-			lvc.cchTextMax = 11;
-			lvc.iSubItem = 6;
-			for (int i = 0; i<6; i++) {
-				lvc.iSubItem = i;
-				lvc.pszText = "C";
-				ListView_InsertColumn(hTablePanel, i, &lvc);
-				ListView_SetColumnWidth(hTablePanel, i, 50);
-				//ListView_InsertItem(hWndLV, &lvi);
-				}*/
+HWND CreateConsoleWindow(HWND parentHandle) {
+
+	return CreateWindowEx(0, WC_TREEVIEW, NULL,
+		WS_CHILD | WS_VISIBLE | WS_TABSTOP |
+		TVS_HASBUTTONS  | TVS_FULLROWSELECT | WS_BORDER
+		, 0, 0, 0, 0,
+		parentHandle, 0, NULL, NULL);
+
+
+}
+
+POINT GetCenterCoord(int windowW, int windowH){
+	int screenW = GetSystemMetrics(SM_CXSCREEN);
+	int screenH = GetSystemMetrics(SM_CYSCREEN);
+
+	return POINT{ (screenW - windowW) / 2 , (screenH - windowH) / 2 };
+
+
+}

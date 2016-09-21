@@ -4,6 +4,7 @@
 
 #include "Headers.h"
 #include "Tools.h"
+#include "Console.h"
 
 ATOM RegisterWindowClass(HINSTANCE hInstance);
 BOOL CreateInstance(HINSTANCE, int);
@@ -22,6 +23,7 @@ HWND hTest;
 HWND hText;
 HWND hSidePanel;
 HWND hTablePanel;
+HWND hConsolePanel;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK ChildProc(HWND, UINT, WPARAM, LPARAM);
@@ -31,6 +33,11 @@ void RegisterChild1();
 void RegisterChild2();
 void GetDir();
 
+//test var
+int v_panelWidth = 200;
+int v_panelHeight = 600;
+int v_maxW = 0;
+int v_maxH = 0;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -55,6 +62,59 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	return (int)msg.wParam;
 }
+
+
+
+
+ATOM RegisterWindowClass(HINSTANCE hInstance) {
+
+	WNDCLASSEX wcex = { 0 };
+
+	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = (HICON)LoadImage(NULL, "largeicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wcex.hbrBackground = GetSysColorBrush(COLOR_GRAYTEXT);//  (HBRUSH)(COLOR_GRAYTEXT);
+	wcex.lpszMenuName = NULL;
+	wcex.lpszClassName = szWindowClass;
+	wcex.hIconSm = (HICON)LoadImage(NULL, "smallicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
+
+	return RegisterClassEx(&wcex);
+}
+
+BOOL CreateInstance(HINSTANCE hInstance, int nCmdShow) {
+
+	hInst = hInstance;
+	//HWND hWnd = CreateWindow(szWindowClass, szTitle,  WS_OVERLAPPEDWINDOW | SS_OWNERDRAW | WS_EX_TOPMOST,
+	//	CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+
+	HWND hWnd = CreateWindowEx(
+		WS_EX_CLIENTEDGE,
+		szWindowClass,
+		szTitle,
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, gWidth, gWidth,
+		NULL, NULL, hInstance, NULL);
+
+
+
+
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
+
+	return TRUE;
+}
+
+
+
+
+
+
+
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
@@ -108,11 +168,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 			hSidePanel = CreateSidePanel(hWnd);
 			hTablePanel = CreateTablePanel(hWnd);
-
-
-
-
-
+			hConsolePanel = CreateConsole(hWnd);
 			ShowWindow(hTest, SW_HIDE);
 
 			break;
@@ -162,8 +218,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			SendMessage(hTest, WM_SIZE, wParam, lParam);
 
 
-			MoveWindow(hSidePanel, 0, 0, 120, clientRect.bottom, 1);
-			MoveWindow(hTablePanel, 120, 0, clientRect.right, clientRect.bottom, 1);
+			MoveWindow(hSidePanel, 0, 0, v_panelWidth, v_panelHeight, 1);
+			MoveWindow(hTablePanel, v_panelWidth, 0, clientRect.right, v_panelHeight, 1);
+			MoveWindow(hConsolePanel, 0, v_panelHeight, clientRect.right, clientRect.bottom, 1);
+	
 
 
 			break;
@@ -192,48 +250,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 
-ATOM RegisterWindowClass(HINSTANCE hInstance){
 
-	WNDCLASSEX wcex = { 0 };
-
-	wcex.cbSize			= sizeof(WNDCLASSEX);
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	wcex.hIcon			= (HICON)LoadImage(NULL, "largeicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
-	wcex.hCursor		= LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground	= GetSysColorBrush(COLOR_GRAYTEXT);//  (HBRUSH)(COLOR_GRAYTEXT);
-	wcex.lpszMenuName	= NULL;
-	wcex.lpszClassName	= szWindowClass;
-	wcex.hIconSm		= (HICON)LoadImage(NULL, "smallicon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED);
-
-	return RegisterClassEx(&wcex);
-}
-
-BOOL CreateInstance(HINSTANCE hInstance, int nCmdShow) {
-
-	hInst = hInstance;
-	//HWND hWnd = CreateWindow(szWindowClass, szTitle,  WS_OVERLAPPEDWINDOW | SS_OWNERDRAW | WS_EX_TOPMOST,
-	//	CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-
-	HWND hWnd = CreateWindowEx(
-		WS_EX_CLIENTEDGE,
-		szWindowClass,
-		szTitle,
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, gWidth, gWidth,
-		NULL, NULL, hInstance, NULL);
-
-
-
-
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
-
-	return TRUE;
-}
 
 
 void CommandMsg(HWND hWnd, WPARAM wParam) {
