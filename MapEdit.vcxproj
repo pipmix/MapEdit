@@ -118,6 +118,7 @@
     <ClCompile Include="Wind.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Headers.h" />

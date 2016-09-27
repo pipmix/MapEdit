@@ -5,6 +5,7 @@
 #include "Headers.h"
 #include "Tools.h"
 #include "Console.h"
+#include "Button.h"
 
 ATOM RegisterWindowClass(HINSTANCE hInstance);
 BOOL CreateInstance(HINSTANCE, int);
@@ -18,12 +19,17 @@ static TCHAR szTitle[] = _T("Vision");
 int gWidth = 768;
 int gHeight = 768;
 HINSTANCE hInst;
+HWND hMainWindow;
 
 HWND hTest;
 HWND hText;
 HWND hSidePanel;
 HWND hTablePanel;
 HWND hConsolePanel;
+
+HFONT hFont1;
+
+HWND hButPlay;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK ChildProc(HWND, UINT, WPARAM, LPARAM);
@@ -92,8 +98,8 @@ BOOL CreateInstance(HINSTANCE hInstance, int nCmdShow) {
 	//HWND hWnd = CreateWindow(szWindowClass, szTitle,  WS_OVERLAPPEDWINDOW | SS_OWNERDRAW | WS_EX_TOPMOST,
 	//	CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-	HWND hWnd = CreateWindowEx(
-		WS_EX_CLIENTEDGE,
+	hMainWindow = CreateWindowEx(
+		0,
 		szWindowClass,
 		szTitle,
 		WS_OVERLAPPEDWINDOW,
@@ -103,8 +109,8 @@ BOOL CreateInstance(HINSTANCE hInstance, int nCmdShow) {
 
 
 
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
+	ShowWindow(hMainWindow, nCmdShow);
+	UpdateWindow(hMainWindow);
 
 	return TRUE;
 }
@@ -171,11 +177,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			hConsolePanel = CreateConsole(hWnd);
 			ShowWindow(hTest, SW_HIDE);
 
+			hButPlay = CreateButton(hConsolePanel);
+
+			//SendMessage(hConsolePanel, WM_SETFONT, (WPARAM)consoleFont, (LPARAM)MAKELONG(TRUE, 0));
+
+			NONCLIENTMETRICS ncm;
+			ncm.cbSize = sizeof(ncm);
+			SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
+			hFont1 = CreateFontIndirect(&ncm.lfMessageFont);
+			SendMessage(hConsolePanel, WM_SETFONT, (WPARAM)hFont1, 0);
+			SendMessage(hButPlay, WM_SETFONT, (WPARAM)hFont1, 0);
 			break;
 
 
 
 			return 0;
+		case BN_CLICKED:
+			if (hButPlay == (HWND)lParam)MessageBeep(MB_ICONINFORMATION);
+			break;
 		case WM_MOVE:
 
 			StringCbPrintfW(buf, BUF_LEN, L"%ld", clientRect.left);
@@ -257,6 +276,9 @@ void CommandMsg(HWND hWnd, WPARAM wParam) {
 
 
 	switch (LOWORD(wParam)) {
+		case DEF_BUT_PLAY:
+			MessageBeep(MB_ICONINFORMATION);
+			break;
 		case IDM_FILE_NEW:
 			ShowWindow(hTest, SW_HIDE);
 			break;

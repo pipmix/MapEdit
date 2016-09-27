@@ -32,7 +32,8 @@ HWND CreateConsole(HWND parentHwnd) {
 		0, 0, 0, 0,
 		parentHwnd, 0, GetModuleHandle(0),0);
 
-	consoleFont = (HFONT)GetStockObject(ANSI_FIXED_FONT);
+	//consoleFont = (HFONT)GetStockObject(ANSI_FIXED_FONT);
+	consoleFont = CreateFont(0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, TEXT("Arial"));
 
 	return consoleHandle;
 }

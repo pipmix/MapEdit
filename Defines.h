@@ -25,3 +25,5 @@
 #define IDM_SETTINGS_FOUR 16
 
 #define IDHK_CENTER		17
+
+#define DEF_BUT_PLAY	18
